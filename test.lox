@@ -1,0 +1,4 @@
+fun foo(bar, bar2) {
+    x = "hi";
+    return (2 * bar)/bar2;
+}
