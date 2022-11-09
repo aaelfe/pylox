@@ -2,8 +2,8 @@ from lox import Lox
 import sys
 from io import StringIO
 
-testdotlox = "fun foo ( bar , bar2 ) { x = \"hi\" ; return ( 2 * bar ) / bar2 ; }  "
-test2dotlox = "fun funcWithArgs ( base , power ) { var result = base ; for ( var a = 0 ; a < power ; a = a + 1 ) { result = result * base ; } return result ; } fun main ( ) { print \"2^3\" ; print funcWithArgs ( 2 , 3 ) ; print \"10^4\" ; print funcWithArgs ( 10 , 4 ) ; } main ( ) ;  "
+testdotlox = "fun | foo | ( | bar | , | bar2 | ) | { | x | = | \"hi\" | ; | return | ( | 2 | * | bar | ) | / | bar2 | ; | } |  | "
+test2dotlox = "fun | funcWithArgs | ( | base | , | power | ) | { | var | result | = | base | ; | for | ( | var | a | = | 0 | ; | a | < | power | ; | a | = | a | + | 1 | ) | { | result | = | result | * | base | ; | } | return | result | ; | } | fun | main | ( | ) | { | print | \"2^3\" | ; | print | funcWithArgs | ( | 2 | , | 3 | ) | ; | print | \"10^4\" | ; | print | funcWithArgs | ( | 10 | , | 4 | ) | ; | } | main | ( | ) | ; |  | "
 
 stdout_fileno = sys.stdout
 
