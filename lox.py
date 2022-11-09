@@ -22,13 +22,14 @@ class Lox:
             if line=="quit":
                 break
             self.run(line)
+            print()
             self.hadError=False
 
     def run(self, source):
         localScanner=scanner.Scanner(source)
         tokens=list(localScanner.scanTokens())
         for token in tokens:
-            print(token, end=" ")
+            print(token, end=" | ")
     
     def error(self, line, message):
         self.report(line, "", message)
