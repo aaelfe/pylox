@@ -7,7 +7,7 @@ test2dotlox = "fun | funcWithArgs | ( | base | , | power | ) | { | var | result 
 
 stdout_fileno = sys.stdout
 
-#This test executes the run function in lox.py with sample Lox from the file test.lox
+#This test executes the run function in lox.py with sample Lox code from the file test.lox
 #Passes if tokens printed by scanner match the result stored in the testdotlox variable
 def test_run_testdotlox():
     sys.stdout = myOutput = StringIO()
@@ -15,7 +15,7 @@ def test_run_testdotlox():
     interpreter.runFile('test.lox')
     assert myOutput.getvalue() == testdotlox
 
-#This test executes the run function in lox.py with sample Lox from the file test2.lox
+#This test executes the run function in lox.py with sample Lox code from the file test2.lox
 #Passes if tokens printed by scanner match the result stored in the test2dotlox variable
 def test_run_test2dotlox():
     sys.stdout = myOutput = StringIO()
