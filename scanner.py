@@ -82,7 +82,8 @@ class Scanner:
                 elif character.isalpha() or character=="_":
                     self.identifier()
                 elif not character==" " and not character=="\r" and not character=="\t":
-                    lox.Lox.error(self.line, "Unexpected character.")
+                    l=lox.Lox()
+                    l.error(self.line, "Unexpected character.")
     
     def identifier(self):
         while self.peek().isalpha() or self.peek().isdigit():
@@ -108,7 +109,8 @@ class Scanner:
                 self.line=self.line+1
             self.advance()
         if self.isAtEnd():
-            lox.Lox.error(self.line, "Unterminated string.")
+            l=lox.Lox()
+            l.error(self.line, "Unterminated string.")
             return
         self.advance()
         value=self.source[self.start+1:self.current-1]

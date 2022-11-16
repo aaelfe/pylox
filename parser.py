@@ -8,7 +8,8 @@ import lox
 tt = tokenType.TokenType
 
 class RuntimeException():
-    pass
+    def __init__(self, message):
+        self.message=message
 
 class ParseError(Exception):
     pass

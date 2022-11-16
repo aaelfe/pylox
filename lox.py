@@ -8,6 +8,7 @@ import tokenType
 import myToken
 import parser as p
 import astPrinter
+import interpreter as interp
 
 args=sys.argv
 argCount=len(sys.argv) #number of args
@@ -15,6 +16,8 @@ argCount=len(sys.argv) #number of args
 class Lox:
     def __init__(self):
         self.hadError=False
+        self.hadRuntimeError=False
+        self.interpreter=interp.Interpreter()
 
     def runFile(self, path):
         file=open(path, "r")
@@ -23,6 +26,8 @@ class Lox:
         self.run(input)
         if(self.hadError):
             sys.exit(65)
+        if(self.hadRuntimeError):
+            sys.exit(70)
 
     def runPrompt(self):
         while 1:
@@ -36,16 +41,17 @@ class Lox:
     def run(self, source):
         localScanner=scanner.Scanner(source)
         tokens=list(localScanner.scanTokens())
-        for token in tokens:
-            print(token.tokenType, end=" | ")
-        print()
+        # for token in tokens:
+        #     print(token.tokenType, end=" | ")
+        # print()
         parser = p.Parser(tokens)
         expression = parser.parse()
 
         if self.hadError:
             return
-        print(expression)
-        print(astPrinter.AstPrinter().print(expression))
+        # print(expression)
+        # print(astPrinter.AstPrinter().print(expression))
+        self.interpreter.interpret(expression)
     
     def error(self, line, message):
         self.report(line, "", message)
@@ -58,7 +64,11 @@ class Lox:
         if token.tokenType == tokenType.TokenType.EOF:
             self.report(token.line, " at end", message)
         else:
-            self.report(token.line, "at '" + token.lexeme + "'", message)
+            self.report(token.line, " at '" + token.lexeme + "'", message)
+
+    def runtimeError(self, error):
+        print(str(error)+"\n[line "+error.token.line+" ]")
+        self.hadRuntimeError=True
 
 #create instance of the interpreter to use in main below
 interpreter = Lox()
