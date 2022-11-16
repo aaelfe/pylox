@@ -24,7 +24,7 @@ class Parser():
         return self.assignment()
 
     def assignment(self):
-        expr=self.equality()
+        expr=self.logicalOr()
 
         if self.match(tt.EQUAL):
             equals=self.previous()
@@ -35,6 +35,26 @@ class Parser():
 
             self.error(equals, "Invalid assignment target.")
         
+        return expr
+
+    def logicalOr(self):
+        expr = self.logicalAnd()
+
+        while self.match(tt.OR):
+            operator=self.previous()
+            right=self.logicalAnd()
+            expr=e.Logical(expr, operator, right)
+
+        return expr
+
+    def logicalAnd(self):
+        expr = self.equality()
+
+        while self.match(tt.AND):
+            operator=self.previous()
+            right=self.equality()
+            expr=e.Logical(expr, operator, right)
+
         return expr
 
     def equality(self):
@@ -155,6 +175,8 @@ class Parser():
             return None
 
     def statement(self):
+        if self.match(tt.IF):
+            return self.ifStatement()
         if self.match(tt.PRINT):
             return self.printStatement()
         if self.match(tt.LEFT_BRACE):
@@ -166,6 +188,19 @@ class Parser():
         value = self.expression()
         self.consume(tt.SEMICOLON, "Expect ';' after value.")
         return s.Print(value)
+
+    def ifStatement(self):
+        self.consume(tt.LEFT_PAREN, "Expect '(' after 'if'.")
+        condition=self.expression()
+        self.consume(tt.RIGHT_PAREN, "Expect ')' after if condition.")
+
+        thenBranch = self.statement()
+        elseBranch = None
+
+        if self.match(tt.ELSE):
+            elseBranch=self.statement()
+
+        return s.If(condition, thenBranch, elseBranch)
 
     def varDeclaration(self):
         name = self.consume(tt.IDENTIFIER, "Expect variable name.")

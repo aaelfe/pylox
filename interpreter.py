@@ -123,6 +123,12 @@ class Interpreter(e.Visitor, s.Visitor):
     def visitExpressionStmt(self, stmt):
         self.evaluate(stmt.expression)
 
+    def visitIfStmt(self, stmt):
+        if self.truthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.thenBranch)
+        elif stmt.elseBranch is not None:
+            self.execute(stmt.elseBranch)
+
     def visitPrintStmt(self, stmt):
         value = self.evaluate(stmt.expression)
         print(self.stringify(value))
@@ -150,3 +156,15 @@ class Interpreter(e.Visitor, s.Visitor):
         value=self.evaluate(expr.value)
         self.environment.assign(expr.name, value)
         return value
+
+    def visitLogicalExpr(self, expr):
+        left = self.evaluate(expr.left)
+
+        if expr.operator.tokenType == tt.OR:
+            if self.truthy(left):
+                return left
+        else:
+            if not self.truthy(left):
+                return left
+
+        return self.evaluate(expr.right)

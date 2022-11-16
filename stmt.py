@@ -7,6 +7,8 @@ class Stmt():
 class Visitor(Stmt):
     def visitExpressionStmt(self, stmt):
         pass
+    def visitIfStmt(self, stmt):
+        pass
     def visitPrintStmt(self, stmt):
         pass
     def visitVarStmt(self, stmt):
@@ -19,6 +21,14 @@ class Expression(Stmt):
         self.expression=expression
     def accept(self, visitor):
         return visitor.visitExpressionStmt(self)
+
+class If(Stmt):
+    def __init__(self, condition, thenBranch, elseBranch):
+        self.condition=condition
+        self.thenBranch=thenBranch
+        self.elseBranch=elseBranch
+    def accept(self, visitor):
+        return visitor.visitIfStmt(self)
 
 class Print(Stmt):
     def __init__(self, expression):
