@@ -157,6 +157,8 @@ class Parser():
     def statement(self):
         if self.match(tt.PRINT):
             return self.printStatement()
+        if self.match(tt.LEFT_BRACE):
+            return s.Block(self.block())
         
         return self.expressionStatement()
 
@@ -179,3 +181,10 @@ class Parser():
         expr = self.expression()
         self.consume(tt.SEMICOLON, "Expect ';' after expression.")
         return s.Expression(expr)
+
+    def block(self):
+        statements = []
+        while (not self.check(tt.RIGHT_BRACE)) and (not self.tokens[self.current].tokenType == tt.EOF):
+            statements.append(self.declaration())
+        self.consume(tt.RIGHT_BRACE, "Expect '}' after block.")
+        return statements

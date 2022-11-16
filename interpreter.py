@@ -134,6 +134,18 @@ class Interpreter(e.Visitor, s.Visitor):
         
         self.environment.define(stmt.name.lexeme, value)
 
+    def visitBlockStmt(self, stmt):
+        self.executeBlock(stmt.statements, environment.Environment(self.environment))
+    
+    def executeBlock(self, statements, environment):
+        previous = self.environment
+        try:
+            self.environment=environment
+            for statement in statements:
+                self.execute(statement)
+        finally:
+            self.environment=previous
+
     def visitAssignExpr(self, expr):
         value=self.evaluate(expr.value)
         self.environment.assign(expr.name, value)
