@@ -3,10 +3,14 @@ import stmt as s
 import tokenType
 import lox
 import runtimeError
+import environment
 
 tt = tokenType.TokenType
 
 class Interpreter(e.Visitor, s.Visitor):
+    def __init__(self):
+        self.environment = environment.Environment()
+
     def interpret(self, statements):
         try:
             for statement in statements:
@@ -94,6 +98,9 @@ class Interpreter(e.Visitor, s.Visitor):
 
         return None
 
+    def visitVariableExpr(self, expr):
+        return self.environment.get(expr.name)
+
     def checkNumberOperand(self, operator, operand):
         if isinstance(operand, float):
             return
@@ -119,3 +126,15 @@ class Interpreter(e.Visitor, s.Visitor):
     def visitPrintStmt(self, stmt):
         value = self.evaluate(stmt.expression)
         print(self.stringify(value))
+
+    def visitVarStmt(self, stmt):
+        value=None
+        if stmt.initializer is not None:
+            value=self.evaluate(stmt.initializer)
+        
+        self.environment.define(stmt.name.lexeme, value)
+
+    def visitAssignExpr(self, expr):
+        value=self.evaluate(expr.value)
+        self.environment.assign(expr.name, value)
+        return value

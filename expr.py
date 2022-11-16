@@ -13,6 +13,10 @@ class Visitor(Expr):
         pass
     def visitUnaryExpr(self, unary):
         pass
+    def visitVariableExpr(self, variable):
+        pass
+    def visitAssignExpr(self, assign):
+        pass
 
 class Binary(Expr):
     def __init__(self, left: Expr, operator: myToken, right: Expr):
@@ -40,3 +44,16 @@ class Unary(Expr):
         self.right = right
     def accept(self, visitor: Visitor):
         return visitor.visitUnaryExpr(self)
+
+class Variable(Expr):
+    def __init__(self, name):
+        self.name=name
+    def accept(self, visitor):
+        return visitor.visitVariableExpr(self)
+
+class Assign(Expr):
+    def __init__(self, name, value):
+        self.name=name
+        self.value=value
+    def accept(self, visitor):
+        return visitor.visitAssignExpr(self)

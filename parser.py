@@ -21,7 +21,21 @@ class Parser():
         self.current = 0
 
     def expression(self):
-        return self.equality()
+        return self.assignment()
+
+    def assignment(self):
+        expr=self.equality()
+
+        if self.match(tt.EQUAL):
+            equals=self.previous()
+            value=self.assignment()
+
+            if isinstance(expr, e.Variable):
+                return e.Assign(expr.name, value)
+
+            self.error(equals, "Invalid assignment target.")
+        
+        return expr
 
     def equality(self):
         expr = self.comparison()
@@ -72,6 +86,9 @@ class Parser():
 
         if self.match(tt.NUMBER, tt.STRING):
             return e.Literal(self.previous().literal)
+
+        if self.match(tt.IDENTIFIER):
+            return e.Variable(self.previous())
 
         if self.match(tt.LEFT_PAREN):
             expr = self.expression()
@@ -124,9 +141,18 @@ class Parser():
     def parse(self):
         statements=[]
         while not self.tokens[self.current].tokenType == tt.EOF:
-            statements.append(self.statement())
+            statements.append(self.declaration())
 
         return statements
+
+    def declaration(self):
+        try:
+            if self.match(tt.VAR):
+                return self.varDeclaration()
+            return self.statement()
+        except ParseError:
+            self.synchronize()
+            return None
 
     def statement(self):
         if self.match(tt.PRINT):
@@ -138,6 +164,16 @@ class Parser():
         value = self.expression()
         self.consume(tt.SEMICOLON, "Expect ';' after value.")
         return s.Print(value)
+
+    def varDeclaration(self):
+        name = self.consume(tt.IDENTIFIER, "Expect variable name.")
+        initializer = None
+
+        if self.match(tt.EQUAL):
+            initializer=self.expression()
+
+        self.consume(tt.SEMICOLON, "Expect ';' after variable declaration.")
+        return s.Var(name, initializer)
 
     def expressionStatement(self):
         expr = self.expression()
