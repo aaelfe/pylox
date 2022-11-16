@@ -9,6 +9,7 @@ class AstPrinter(Visitor):
     def parenthesize(self, name, *exprs):
         result="("+name
         for expr in exprs:
+            #print(expr)
             result+=" "+expr.accept(self)
         result+=")"
         return result

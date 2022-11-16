@@ -1,5 +1,13 @@
 import sys
 import scanner
+# from tokenType import TokenType
+# from myToken import myToken
+# from parser import Parser
+# from astPrinter import AstPrinter
+import tokenType
+import myToken
+import parser as p
+import astPrinter
 
 args=sys.argv
 argCount=len(sys.argv) #number of args
@@ -29,14 +37,28 @@ class Lox:
         localScanner=scanner.Scanner(source)
         tokens=list(localScanner.scanTokens())
         for token in tokens:
-            print(token, end=" | ")
+            print(token.tokenType, end=" | ")
+        print()
+        parser = p.Parser(tokens)
+        expression = parser.parse()
+
+        if self.hadError:
+            return
+        print(expression)
+        print(astPrinter.AstPrinter().print(expression))
     
     def error(self, line, message):
         self.report(line, "", message)
     
     def report(self, line, where, message):
-        print("[line "+line+"] Error"+where+": "+message)
+        print("[line "+str(line)+"] Error"+where+": "+message)
         self.hadError=True
+
+    def parseError(self, token, message):
+        if token.tokenType == tokenType.TokenType.EOF:
+            self.report(token.line, " at end", message)
+        else:
+            self.report(token.line, "at '" + token.lexeme + "'", message)
 
 #create instance of the interpreter to use in main below
 interpreter = Lox()
