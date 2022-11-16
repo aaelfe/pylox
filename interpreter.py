@@ -1,21 +1,25 @@
 import expr as e
+import stmt as s
 import tokenType
 import lox
 import runtimeError
 
 tt = tokenType.TokenType
 
-class Interpreter(e.Visitor):
-    def interpret(self, expression):
+class Interpreter(e.Visitor, s.Visitor):
+    def interpret(self, statements):
         try:
-            value=self.evaluate(expression)
-            print(self.stringify(value))
+            for statement in statements:
+                self.execute(statement)
         except runtimeError.RuntimeE as error:
             self.error(error)
 
     def error(self, e):
         l=lox.Lox()
         l.runtimeError(e)
+
+    def execute(self, stmt):
+        stmt.accept(self)
 
     def stringify(self, object):
         if object is None:
@@ -107,3 +111,11 @@ class Interpreter(e.Visitor):
         if object is None:
             return False
         return True
+
+
+    def visitExpressionStmt(self, stmt):
+        self.evaluate(stmt.expression)
+
+    def visitPrintStmt(self, stmt):
+        value = self.evaluate(stmt.expression)
+        print(self.stringify(value))

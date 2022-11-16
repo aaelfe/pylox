@@ -45,13 +45,13 @@ class Lox:
         #     print(token.tokenType, end=" | ")
         # print()
         parser = p.Parser(tokens)
-        expression = parser.parse()
+        statements=parser.parse()
 
         if self.hadError:
             return
         # print(expression)
         # print(astPrinter.AstPrinter().print(expression))
-        self.interpreter.interpret(expression)
+        self.interpreter.interpret(statements)
     
     def error(self, line, message):
         self.report(line, "", message)

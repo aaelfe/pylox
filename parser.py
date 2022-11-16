@@ -4,6 +4,7 @@
 import tokenType
 import expr as e
 import lox
+import stmt as s
 
 tt = tokenType.TokenType
 
@@ -119,5 +120,26 @@ class Parser():
         if self.tokens[self.current].tokenType in [tt.CLASS, tt.FUN, tt.VAR, tt.FOR, tt.IF, tt.WHILE, tt.PRINT, tt.RETURN]:
             return
         self.advance()
+
     def parse(self):
-        return self.expression()
+        statements=[]
+        while not self.tokens[self.current].tokenType == tt.EOF:
+            statements.append(self.statement())
+
+        return statements
+
+    def statement(self):
+        if self.match(tt.PRINT):
+            return self.printStatement()
+        
+        return self.expressionStatement()
+
+    def printStatement(self):
+        value = self.expression()
+        self.consume(tt.SEMICOLON, "Expect ';' after value.")
+        return s.Print(value)
+
+    def expressionStatement(self):
+        expr = self.expression()
+        self.consume(tt.SEMICOLON, "Expect ';' after expression.")
+        return s.Expression(expr)
