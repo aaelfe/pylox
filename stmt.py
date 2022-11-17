@@ -15,6 +15,8 @@ class Visitor(Stmt):
         pass
     def visitBlockStmt(self, stmt):
         pass
+    def visitWhileStmt(self, stmt):
+        pass
 
 class Expression(Stmt):
     def __init__(self, expression):
@@ -48,3 +50,10 @@ class Block(Stmt):
         self.statements=statements
     def accept(self, visitor):
         return visitor.visitBlockStmt(self)
+
+class While(Stmt):
+    def __init__(self, condition, body):
+        self.condition=condition
+        self.body=body
+    def accept(self, visitor):
+        return visitor.visitWhileStmt(self)

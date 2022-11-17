@@ -140,6 +140,10 @@ class Interpreter(e.Visitor, s.Visitor):
         
         self.environment.define(stmt.name.lexeme, value)
 
+    def visitWhileStmt(self, stmt):
+        while self.truthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.body)
+
     def visitBlockStmt(self, stmt):
         self.executeBlock(stmt.statements, environment.Environment(self.environment))
     

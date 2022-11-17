@@ -175,14 +175,61 @@ class Parser():
             return None
 
     def statement(self):
+        if self.match(tt.FOR):
+            return self.forStatement()
         if self.match(tt.IF):
             return self.ifStatement()
         if self.match(tt.PRINT):
             return self.printStatement()
+        if self.match(tt.WHILE):
+            return self.whileStatement()
         if self.match(tt.LEFT_BRACE):
             return s.Block(self.block())
         
         return self.expressionStatement()
+
+    def forStatement(self):
+        self.consume(tt.LEFT_PAREN, "Expect '(' after 'for'.")
+
+        initializer=None
+        if self.match(tt.SEMICOLON):
+            initializer=None
+        elif self.match(tt.VAR):
+            initializer=self.varDeclaration()
+        else:
+            initializer=self.expressionStatement()
+
+        condition=None
+        if not self.check(tt.SEMICOLON):
+            condition=self.expression()
+        self.consume(tt.SEMICOLON, "Expect ';' after loop condition.")
+
+        increment=None
+        if not self.check(tt.RIGHT_PAREN):
+            increment=self.expression()
+        self.consume(tt.RIGHT_PAREN, "Expect ')' after for clauses.")
+
+        body=self.statement()
+
+        if increment is not None:
+            body=s.Block([body, increment])
+
+        if condition is None:
+            condition=e.Literal(True)
+            
+        body=s.While(condition, body)
+
+        if initializer is not None:
+            body=s.Block([initializer, body])
+
+        return body
+
+    def whileStatement(self):
+        self.consume(tt.LEFT_PAREN, "Expect '(' after 'while'.")
+        condition=self.expression()
+        self.consume(tt.RIGHT_PAREN, "Expect ')' after condition.")
+        body=self.statement()
+        return s.While(condition, body)
 
     def printStatement(self):
         value = self.expression()
