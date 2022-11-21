@@ -1,0 +1,11 @@
+var expression1 = ((9+10)*2+5/5);
+
+var expression2 = true and (!1);
+
+var expression3 = !true or !!true;
+
+print expression1;
+
+print expression2;
+
+print expression3;

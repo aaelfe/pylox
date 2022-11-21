@@ -1,0 +1,22 @@
+var a = "y";
+if(a == "y") {
+    print "Variable a equals y";
+    if(a == "z") {
+        print "Variable a equals z";
+    } else {
+        print "Variable a doesn't equal z";
+    }
+} else {
+    print "Variable a doesn't equal y";
+}
+if(a == "nope") {
+    print "Variable a equals nope";
+}
+
+a = "x";
+
+if(a == "x") {
+    print "Variable a equals x";
+} else {
+    print "Variable a doesn't equal x";
+}

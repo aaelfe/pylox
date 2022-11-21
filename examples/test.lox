@@ -1,4 +1,11 @@
-fun foo(bar, bar2) {
-    x = "hi";
-    return (2 * bar)/bar2;
+var a = "x";
+
+while(a!="xxxxx") {
+  if(a=="xxx") {
+    print "Three strikes!";
+  } else {
+    print "Not three strikes.";
+  }
+  print a;
+  a=a+"x";
 }
