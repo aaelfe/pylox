@@ -4,12 +4,17 @@ import tokenType
 import lox
 import runtimeError
 import environment
+import loxCallable as c
+import time
+import loxFunction as f
 
 tt = tokenType.TokenType
 
 class Interpreter(e.Visitor, s.Visitor):
     def __init__(self):
-        self.environment = environment.Environment()
+        self.globalVars = environment.Environment()
+        self.environment = self.globalVars
+        self.globalVars.define("clock", Clock())
 
     def interpret(self, statements):
         try:
@@ -146,6 +151,16 @@ class Interpreter(e.Visitor, s.Visitor):
 
     def visitBlockStmt(self, stmt):
         self.executeBlock(stmt.statements, environment.Environment(self.environment))
+
+    def visitFunctionStmt(self, stmt):
+        function=f.LoxFunction(stmt, self.environment)
+        self.environment.define(stmt.name.lexeme, function)
+
+    def visitReturnStmt(self, stmt):
+        value=None
+        if stmt.value is not None:
+            value=self.evaluate(stmt.value)
+        raise runtimeError.Return(value)
     
     def executeBlock(self, statements, environment):
         previous = self.environment
@@ -172,3 +187,30 @@ class Interpreter(e.Visitor, s.Visitor):
                 return left
 
         return self.evaluate(expr.right)
+    
+    def visitCallExpr(self, expr):
+        callee=self.evaluate(expr.callee)
+
+        arguments=[]
+        for argument in expr.arguments:
+            arguments.append(self.evaluate(argument))
+        
+        if not isinstance(callee, c.LoxCallable):
+            raise RuntimeError(expr.paren, "Can only call functions and classes.")
+
+        function: c.LoxCallable = callee
+
+        if len(arguments) != function.arity():
+            raise RuntimeError(expr.paren, "Expected "+function.arity()+" arguments but got "+" "+len(arguments)+".")
+
+        return function.call(self, arguments)
+
+#native function implementations below
+
+class Clock(c.LoxCallable):
+    def call(self, interpreter, arguments):
+        return time.time()
+    def arity(self):
+        return 0
+    def __str__(self):
+        return '<native function>'

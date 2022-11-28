@@ -94,7 +94,31 @@ class Parser():
             operator = self.previous()
             right = self.unary()
             return e.Unary(operator, right)
-        return self.primary()
+        return self.call()
+
+    def call(self):
+        expr=self.primary()
+
+        while True:
+            if self.match(tt.LEFT_PAREN):
+                expr=self.finishCall(expr)
+            else:
+                break
+
+        return expr
+
+    def finishCall(self, callee):
+        arguments=[]
+
+        if not self.check(tt.RIGHT_PAREN):
+            flag=True
+            while flag:
+                arguments.append(self.expression())
+                flag=self.match(tt.COMMA)
+
+        paren=self.consume(tt.RIGHT_PAREN, "Expect ')' after arguments.")
+        return e.Call(callee, paren, arguments)
+
 
     def primary(self):
         if self.match(tt.FALSE):
@@ -167,6 +191,8 @@ class Parser():
 
     def declaration(self):
         try:
+            if self.match(tt.FUN):
+                return self.function("function")
             if self.match(tt.VAR):
                 return self.varDeclaration()
             return self.statement()
@@ -181,12 +207,23 @@ class Parser():
             return self.ifStatement()
         if self.match(tt.PRINT):
             return self.printStatement()
+        if self.match(tt.RETURN):
+            return self.returnStatement()
         if self.match(tt.WHILE):
             return self.whileStatement()
         if self.match(tt.LEFT_BRACE):
             return s.Block(self.block())
         
         return self.expressionStatement()
+
+    def returnStatement(self):
+        keyword=self.previous()
+        value=None
+        if not self.check(tt.SEMICOLON):
+            value=self.expression()
+        
+        self.consume(tt.SEMICOLON, "Expect ';' after return value.")
+        return s.Return(keyword, value)
 
     def forStatement(self):
         self.consume(tt.LEFT_PAREN, "Expect '(' after 'for'.")
@@ -263,6 +300,22 @@ class Parser():
         expr = self.expression()
         self.consume(tt.SEMICOLON, "Expect ';' after expression.")
         return s.Expression(expr)
+
+    def function(self, kind):
+        name=self.consume(tt.IDENTIFIER, "Expect "+kind+" name.")
+        self.consume(tt.LEFT_PAREN, "Expect '(' after "+kind+" name.")
+        parameters=[]
+        if not self.check(tt.RIGHT_PAREN):
+            while True:
+                parameters.append(self.consume(tt.IDENTIFIER, "Expect parameter name."))
+                if not self.match(tt.COMMA):
+                    break
+        self.consume(tt.RIGHT_PAREN, "Expect ')' after parameters.")
+
+        self.consume(tt.LEFT_BRACE, "Expect '{' before "+kind+" body.")
+        body=self.block()
+
+        return s.Function(name, parameters, body)
 
     def block(self):
         statements = []

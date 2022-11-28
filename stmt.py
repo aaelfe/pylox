@@ -17,6 +17,10 @@ class Visitor(Stmt):
         pass
     def visitWhileStmt(self, stmt):
         pass
+    def visitFunctionStmt(self, stmt):
+        pass
+    def visitReturnStmt(self, stmt):
+        pass
 
 class Expression(Stmt):
     def __init__(self, expression):
@@ -57,3 +61,18 @@ class While(Stmt):
         self.body=body
     def accept(self, visitor):
         return visitor.visitWhileStmt(self)
+        
+class Function(Stmt):
+    def __init__(self, name, params, body):
+        self.name=name
+        self.params=params
+        self.body=body
+    def accept(self, visitor):
+        return visitor.visitFunctionStmt(self)
+
+class Return(Stmt):
+    def __init__(self, keyword, value):
+        self.keyword=keyword
+        self.value=value
+    def accept(self, visitor):
+        return visitor.visitReturnStmt(self)
