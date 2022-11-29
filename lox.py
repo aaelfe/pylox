@@ -9,6 +9,7 @@ import myToken
 import parser as p
 import astPrinter
 import interpreter as interp
+import resolver as r
 
 args=sys.argv
 argCount=len(sys.argv) #number of args
@@ -49,8 +50,13 @@ class Lox:
 
         if self.hadError:
             return
-        # print(expression)
-        # print(astPrinter.AstPrinter().print(expression))
+
+        resolver = r.Resolver(self.interpreter)
+        resolver.resolveBlock(statements)
+
+        if self.hadError:
+            return
+
         self.interpreter.interpret(statements)
     
     def error(self, line, message):

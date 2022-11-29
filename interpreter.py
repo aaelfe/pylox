@@ -14,6 +14,7 @@ class Interpreter(e.Visitor, s.Visitor):
     def __init__(self):
         self.globalVars = environment.Environment()
         self.environment = self.globalVars
+        self.locals = {}
         self.globalVars.define("clock", Clock())
 
     def interpret(self, statements):
@@ -29,6 +30,9 @@ class Interpreter(e.Visitor, s.Visitor):
 
     def execute(self, stmt):
         stmt.accept(self)
+
+    def resolve(self, expr, depth):
+        self.locals[expr]=depth
 
     def stringify(self, object):
         if object is None:
@@ -104,7 +108,15 @@ class Interpreter(e.Visitor, s.Visitor):
         return None
 
     def visitVariableExpr(self, expr):
-        return self.environment.get(expr.name)
+        return self.lookUpVariable(expr.name, expr)
+        # return self.environment.get(expr.name)
+
+    def lookUpVariable(self, name, expr):
+        distance=self.locals.get(expr)
+        if distance is not None:
+            return self.environment.getAt(distance, name.lexeme)
+        else:
+            return self.globalVars.get(name)
 
     def checkNumberOperand(self, operator, operand):
         if isinstance(operand, float):
@@ -173,7 +185,14 @@ class Interpreter(e.Visitor, s.Visitor):
 
     def visitAssignExpr(self, expr):
         value=self.evaluate(expr.value)
-        self.environment.assign(expr.name, value)
+
+        distance=self.locals.get(expr)
+        if distance is not None:
+            self.environment.assignAt(distance, expr.name, value)
+        else:
+            self.globals.assign(expr.name, value)
+        # self.environment.assign(expr.name, value)
+
         return value
 
     def visitLogicalExpr(self, expr):
