@@ -21,6 +21,10 @@ class Visitor(Expr):
         pass
     def visitCallExpr(self, call):
         pass
+    def visitGetExpr(self, get):
+        pass
+    def visitSetExpr(self, set):
+        pass
 
 class Binary(Expr):
     def __init__(self, left: Expr, operator: myToken, right: Expr):
@@ -77,3 +81,18 @@ class Call(Expr):
         self.arguments=arguments
     def accept(self, visitor):
         return visitor.visitCallExpr(self)
+
+class Get(Expr):
+    def __init__(self, obj, name):
+        self.obj=obj
+        self.name=name
+    def accept(self, visitor):
+        return visitor.visitGetExpr(self)
+
+class Set(Expr):
+    def __init__(self, obj, name, value):
+        self.obj=obj
+        self.name=name
+        self.value=value
+    def accept(self, visitor):
+        return visitor.visitSetExpr(self)

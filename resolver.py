@@ -6,6 +6,7 @@ from enum import Enum, auto
 class FunctionType(Enum):
     NONE=auto()
     FUNCTION=auto()
+    METHOD=auto()
 
 class Resolver(e.Visitor, s.Visitor):
     def __init__(self, interpreter):
@@ -17,6 +18,14 @@ class Resolver(e.Visitor, s.Visitor):
         self.beginScope()
         self.resolveBlock(stmt.statements)
         self.endScope()
+
+    def visitClassStmt(self, stmt):
+        self.declare(stmt.name)
+        self.define(stmt.name)
+
+        for method in stmt.methods:
+            declaration=FunctionType.METHOD
+            self.resolveFunction(method, declaration)
 
     def visitVarStmt(self, stmt):
         self.declare(stmt.name)
@@ -69,6 +78,13 @@ class Resolver(e.Visitor, s.Visitor):
         self.resolveExpression(expr.callee)
         for argument in expr.arguments:
             self.resolveExpression(argument)
+
+    def visitGetExpr(self, expr):
+        self.resolveExpression(expr.obj)
+
+    def visitSetExpr(self, expr):
+        self.resolveExpression(expr.value)
+        self.resolveExpression(expr.obj)
 
     def visitGroupingExpr(self, expr):
         self.resolveExpression(expr.expression)

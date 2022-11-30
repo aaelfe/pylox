@@ -21,6 +21,8 @@ class Visitor(Stmt):
         pass
     def visitReturnStmt(self, stmt):
         pass
+    def visitClassStmt(self, stmt):
+        pass
 
 class Expression(Stmt):
     def __init__(self, expression):
@@ -76,3 +78,10 @@ class Return(Stmt):
         self.value=value
     def accept(self, visitor):
         return visitor.visitReturnStmt(self)
+
+class Class(Stmt):
+    def __init__(self, name, methods):
+        self.name=name
+        self.methods=methods
+    def accept(self, visitor):
+        return visitor.visitClassStmt(self)

@@ -2,11 +2,13 @@ import expr as e
 import stmt as s
 import tokenType
 import lox
-import runtimeError
+import runtimeError as r
 import environment
 import loxCallable as c
 import time
 import loxFunction as f
+import loxClass as cl
+import loxInstance as i
 
 tt = tokenType.TokenType
 
@@ -21,7 +23,7 @@ class Interpreter(e.Visitor, s.Visitor):
         try:
             for statement in statements:
                 self.execute(statement)
-        except runtimeError.RuntimeE as error:
+        except r.RuntimeE as error:
             self.error(error)
 
     def error(self, e):
@@ -77,7 +79,7 @@ class Interpreter(e.Visitor, s.Visitor):
                 return float(left)+float(right)
             elif isinstance(left, str) and isinstance(right, str):
                 return str(left)+str(right)
-            raise RuntimeError(expr.operator, "Operands must be two numbers or two strings.")
+            raise r.RuntimeE(expr.operator, "Operands must be two numbers or two strings.")
         elif expr.operator.tokenType == tt.GREATER:
             self.checkNumberOperands(expr.operator, left, right)
             return float(left)>float(right)
@@ -121,12 +123,12 @@ class Interpreter(e.Visitor, s.Visitor):
     def checkNumberOperand(self, operator, operand):
         if isinstance(operand, float):
             return
-        raise RuntimeError(operator, "Operand must be a number.")
+        raise r.RuntimeE(operator, "Operand must be a number.")
 
     def checkNumberOperands(self, operator, left, right):
         if isinstance(left, float) and isinstance(right, float):
             return
-        raise RuntimeError(operator, "Operands must be numbers.")
+        raise r.RuntimeE(operator, "Operands must be numbers.")
 
 
     def truthy(self, object):
@@ -173,6 +175,17 @@ class Interpreter(e.Visitor, s.Visitor):
         if stmt.value is not None:
             value=self.evaluate(stmt.value)
         raise runtimeError.Return(value)
+
+    def visitClassStmt(self, stmt):
+        self.environment.define(stmt.name.lexeme, None)
+        
+        methods={}
+        for method in stmt.methods:
+            function=f.LoxFunction(method, self.environment)
+            methods[method.name.lexeme]=function
+        klass=cl.LoxClass(stmt.name.lexeme, methods)
+
+        self.environment.assign(stmt.name, klass)
     
     def executeBlock(self, statements, environment):
         previous = self.environment
@@ -215,14 +228,28 @@ class Interpreter(e.Visitor, s.Visitor):
             arguments.append(self.evaluate(argument))
         
         if not isinstance(callee, c.LoxCallable):
-            raise RuntimeError(expr.paren, "Can only call functions and classes.")
+            raise r.RuntimeE(expr.paren, "Can only call functions and classes.")
 
         function: c.LoxCallable = callee
 
         if len(arguments) != function.arity():
-            raise RuntimeError(expr.paren, "Expected "+function.arity()+" arguments but got "+" "+len(arguments)+".")
+            raise r.RuntimeE(expr.paren, "Expected "+function.arity()+" arguments but got "+" "+len(arguments)+".")
 
         return function.call(self, arguments)
+    
+    def visitGetExpr(self, expr):
+        obj=self.evaluate(expr.obj)
+        if isinstance(obj, i.LoxInstance):
+            return obj.get(expr.name)
+        raise r.RuntimeE(expr.name, "Only instances have properties.")
+
+    def visitSetExpr(self, expr):
+        obj=self.evaluate(expr.obj)
+        if not isinstance(obj, i.LoxInstance):
+            raise r.RuntimeE(expr.name, "Only instances have fields.")
+        value=self.evaluate(expr.value)
+        obj.sett(expr.name, value)
+        return value
 
 #native function implementations below
 
