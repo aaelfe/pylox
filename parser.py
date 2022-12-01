@@ -137,6 +137,9 @@ class Parser():
         if self.match(tt.NUMBER, tt.STRING):
             return e.Literal(self.previous().literal)
 
+        if self.match(tt.THIS):
+            return e.This(self.previous())
+
         if self.match(tt.IDENTIFIER):
             return e.Variable(self.previous())
 

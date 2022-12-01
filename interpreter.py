@@ -168,7 +168,7 @@ class Interpreter(e.Visitor, s.Visitor):
 
     def visitFunctionStmt(self, stmt):
         function=f.LoxFunction(stmt, self.environment)
-        self.environment.define(stmt.name.lexeme, function)
+        self.environment.define(stmt.name.lexeme, function, False)
 
     def visitReturnStmt(self, stmt):
         value=None
@@ -181,7 +181,7 @@ class Interpreter(e.Visitor, s.Visitor):
         
         methods={}
         for method in stmt.methods:
-            function=f.LoxFunction(method, self.environment)
+            function=f.LoxFunction(method, self.environment, method.name.lexeme=="init")
             methods[method.name.lexeme]=function
         klass=cl.LoxClass(stmt.name.lexeme, methods)
 
@@ -250,6 +250,9 @@ class Interpreter(e.Visitor, s.Visitor):
         value=self.evaluate(expr.value)
         obj.sett(expr.name, value)
         return value
+    
+    def visitThisExpr(self, expr):
+        return self.lookUpVariable(expr.keyword, expr)
 
 #native function implementations below
 

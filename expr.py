@@ -25,6 +25,8 @@ class Visitor(Expr):
         pass
     def visitSetExpr(self, set):
         pass
+    def visitThisExpr(self, this):
+        pass
 
 class Binary(Expr):
     def __init__(self, left: Expr, operator: myToken, right: Expr):
@@ -96,3 +98,9 @@ class Set(Expr):
         self.value=value
     def accept(self, visitor):
         return visitor.visitSetExpr(self)
+
+class This(Expr):
+    def __init__(self, keyword):
+        self.keyword=keyword
+    def accept(self, visitor):
+        return visitor.visitThisExpr(self)

@@ -12,7 +12,7 @@ class LoxInstance():
 
         method=self.klass.findMethod(name.lexeme)
         if method is not None:
-            return method
+            return method.bind(self)
 
         raise r.RuntimeE(name, "Undefined property '"+name.lexeme+"'.")
     def sett(self, name, value):

@@ -7,12 +7,18 @@ class FunctionType(Enum):
     NONE=auto()
     FUNCTION=auto()
     METHOD=auto()
+    INITIALIZER=auto()
+
+class ClassType(Enum):
+    NONE=auto()
+    CLASS=auto()
 
 class Resolver(e.Visitor, s.Visitor):
     def __init__(self, interpreter):
         self.interpreter=interpreter
         self.scopes=[]
         self.currentFunction=FunctionType.NONE
+        self.currentClass=ClassType.NONE
 
     def visitBlockStmt(self, stmt):
         self.beginScope()
@@ -20,12 +26,23 @@ class Resolver(e.Visitor, s.Visitor):
         self.endScope()
 
     def visitClassStmt(self, stmt):
+        enclosingClass=self.currentClass
+        self.currentClass=ClassType.CLASS
+
         self.declare(stmt.name)
         self.define(stmt.name)
 
+        self.beginScope()
+        self.scopes[-1]["this"]=True
+
         for method in stmt.methods:
             declaration=FunctionType.METHOD
+            if method.name.lexeme=="init":
+                declaration=FunctionType.INITIALIZER
             self.resolveFunction(method, declaration)
+
+        self.endScope()
+        self.currentClass=enclosingClass
 
     def visitVarStmt(self, stmt):
         self.declare(stmt.name)
@@ -55,6 +72,8 @@ class Resolver(e.Visitor, s.Visitor):
             l.parseError(stmt.keyword, "Can't return from top-level code.")
 
         if stmt.value is not None:
+            if self.currentFunction==FunctionType.INITIALIZER:
+                l.Lox.error(stmt.keyword, "Can't return a value from an initializer.")
             self.resolveExpression(stmt.value)
 
     def visitWhileStmt(self, stmt):
@@ -85,6 +104,12 @@ class Resolver(e.Visitor, s.Visitor):
     def visitSetExpr(self, expr):
         self.resolveExpression(expr.value)
         self.resolveExpression(expr.obj)
+
+    def visitThisExpr(self, expr):
+        if self.currentClass==ClassType.NONE:
+            l.Lox.error(expr.keyword, "Can't use 'this' outside of a class.")
+            return None
+        self.resolveLocal(expr, expr.keyword)
 
     def visitGroupingExpr(self, expr):
         self.resolveExpression(expr.expression)
