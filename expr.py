@@ -27,6 +27,8 @@ class Visitor(Expr):
         pass
     def visitThisExpr(self, this):
         pass
+    def visitSuperExpr(self, super):
+        pass
 
 class Binary(Expr):
     def __init__(self, left: Expr, operator: myToken, right: Expr):
@@ -104,3 +106,10 @@ class This(Expr):
         self.keyword=keyword
     def accept(self, visitor):
         return visitor.visitThisExpr(self)
+
+class Super(Expr):
+    def __init__(self, keyword, method):
+        self.keyword=keyword
+        self.method=method
+    def accept(self, visitor):
+        return visitor.visitSuperExpr(self)

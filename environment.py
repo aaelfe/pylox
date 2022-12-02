@@ -18,6 +18,7 @@ class Environment():
         raise RuntimeError(name, "Undefined variable '"+name.lexeme+"'.")
 
     def getAt(self, distance, name):
+        # print(self.ancestor(distance).values)
         return self.ancestor(distance).values.get(name)
 
     def ancestor(self, distance):

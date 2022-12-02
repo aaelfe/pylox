@@ -2,7 +2,8 @@ import loxCallable as c
 import loxInstance as i
 
 class LoxClass(c.LoxCallable):
-    def __init__(self, name, methods):
+    def __init__(self, name, superclass, methods):
+        self.superclass=superclass
         self.name=name
         self.methods=methods
     def __str__(self):
@@ -23,4 +24,6 @@ class LoxClass(c.LoxCallable):
     def findMethod(self, name):
         if name in self.methods:
             return self.methods[name]
+        if self.superclass is not None:
+            return self.superclass.findMethod(name)
         return None

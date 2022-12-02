@@ -137,6 +137,12 @@ class Parser():
         if self.match(tt.NUMBER, tt.STRING):
             return e.Literal(self.previous().literal)
 
+        if self.match(tt.SUPER):
+            keyword=self.previous()
+            self.consume(tt.DOT, "Expect '.' after 'super'.")
+            method=self.consume(tt.IDENTIFIER, "Expect superclass method name.")
+            return e.Super(keyword, method)
+
         if self.match(tt.THIS):
             return e.This(self.previous())
 
@@ -213,6 +219,12 @@ class Parser():
 
     def classDeclaration(self):
         name=self.consume(tt.IDENTIFIER, "Expect class name.")
+
+        superclass=None
+        if self.match(tt.LESS):
+            self.consume(tt.IDENTIFIER, "Expect superclass name.")
+            superclass=e.Variable(self.previous())
+
         self.consume(tt.LEFT_BRACE, "Expect '{' before class body.")
 
         methods=[]
@@ -220,7 +232,7 @@ class Parser():
             methods.append(self.function("method"))
 
         self.consume(tt.RIGHT_BRACE, "Expect '}' after class body.")
-        return s.Class(name, methods)
+        return s.Class(name, superclass, methods)
 
     def statement(self):
         if self.match(tt.FOR):
