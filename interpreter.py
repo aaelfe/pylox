@@ -167,14 +167,14 @@ class Interpreter(e.Visitor, s.Visitor):
         self.executeBlock(stmt.statements, environment.Environment(self.environment))
 
     def visitFunctionStmt(self, stmt):
-        function=f.LoxFunction(stmt, self.environment)
-        self.environment.define(stmt.name.lexeme, function, False)
+        function=f.LoxFunction(stmt, self.environment, False)
+        self.environment.define(stmt.name.lexeme, function)
 
     def visitReturnStmt(self, stmt):
         value=None
         if stmt.value is not None:
             value=self.evaluate(stmt.value)
-        raise runtimeError.Return(value)
+        raise r.Return(value)
 
     def visitClassStmt(self, stmt):
         superclass=None
@@ -214,9 +214,10 @@ class Interpreter(e.Visitor, s.Visitor):
 
         distance=self.locals.get(expr)
         if distance is not None:
+            # print(distance)
             self.environment.assignAt(distance, expr.name, value)
         else:
-            self.globals.assign(expr.name, value)
+            self.globalVars.assign(expr.name, value)
         # self.environment.assign(expr.name, value)
 
         return value

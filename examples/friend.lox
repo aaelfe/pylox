@@ -1,0 +1,17 @@
+class Friend {
+  
+  init(name) {
+    this.name = name;
+  }
+  
+  greet() {
+    print "My name is " + this.name + " and " + this.catchphrase;
+  }
+  
+}
+
+var johnCena = Friend("John Cena");
+johnCena.catchphrase = "YOU CAN'T SEE ME!";
+johnCena.greet();
+// Class instances can be reinitialised.
+johnCena.init("CENA");
