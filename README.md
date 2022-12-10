@@ -1,10 +1,8 @@
 # pylox
 
-Lox interpreter written in Python. At this checkpoint, the interpreter works up to a point. Loops, conditionals, logical operators, expressions, scope, all work.
+Lox interpreter written in Python. Project is nearly complete, but there are issues involved with reassignment within nested scopes. So, currently for loops and many other instances of variable reassignment don't work.
 
-Please see test code in tests/test_checkpoint.py. These are the tests that are run in the submitted image that all pass.
-
-## Running the Scanner
+## Running the Interpreter
 
 The interpreter has two modes.
 
