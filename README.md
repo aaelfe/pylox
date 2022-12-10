@@ -1,5 +1,7 @@
 # pylox
 
+Built with guidance from Crafting Interpreters by Robert Nystrom.
+
 Lox interpreter written in Python. Project is nearly complete, but there are issues involved with reassignment within nested scopes. So, currently for loops and many other instances of variable reassignment don't work.
 
 ## Running the Interpreter
